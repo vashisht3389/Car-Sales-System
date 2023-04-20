@@ -1,0 +1,166 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.time.*;
+
+public class TicTacToe1 implements ActionListener {
+
+    private JFrame frame;
+    private JPanel panel;
+    private JButton[] buttons;
+    private String turnLabel;
+    private boolean xTurn;
+    private boolean gameOver;
+    static int h = 0, m = 0, s=0;
+
+
+
+
+    public TicTacToe1() {
+        frame  = new JFrame("Tic Tac Toe");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setSize(300, 300);
+
+		  ImageIcon ic2 = new ImageIcon("D:/Bunny_LPU_4th_Sem/CSE310/PROJECT/ttt.jpg.jpeg");
+		  frame.setIconImage(ic2.getImage());
+
+
+
+        panel = new JPanel(new GridLayout(3, 3));
+        buttons = new JButton[9];
+        for (int i = 0; i < buttons.length; i++) {
+            buttons[i] = new JButton("");
+            buttons[i].addActionListener(this);
+            panel.add(buttons[i]);
+        }
+        turnLabel = " ";
+   
+
+        //timer and date
+		JLabel timer = new JLabel("Timer", JLabel.CENTER);
+      	JLabel date = new JLabel("Date and Time", JLabel.CENTER);
+       
+      Font font1 = new Font ("TIMER", Font.BOLD, 48);
+      Font font2 = new Font (Font.SANS_SERIF, 3, 19);
+	   Font font3 = new Font (Font.SANS_SERIF, 3,19);
+
+		timer.setFont(font1);
+		date.setFont(font2);
+     
+		
+
+		frame.add(timer, BorderLayout.NORTH); 
+		String str = turnLabel + "    "+ LocalDate.now();
+		JLabel user = new JLabel(str, JLabel.CENTER);
+		frame.add(user, BorderLayout.SOUTH);
+	
+
+      frame.add(panel, BorderLayout.CENTER);
+        
+      LocalTime lt = LocalTime.now();
+      LocalDate dt = LocalDate.now();
+
+		date.setText(turnLabel + "     " + dt);
+		timer.setFont(font1);
+	   date.setFont(font2);
+
+		//Timer updation part
+		Thread timer_thread = new Thread(
+
+		//creating of object of thread class 	Lambda to implement run()
+		//() -> {}  structure of Lambda
+		
+		() -> {
+		while(true)
+		{
+		    s++;
+		    if(s == 60) { m++; s=0; }
+		    if(m == 60) { h++; m =0; }
+		     try{ Thread.sleep(1000);   }//code will run so frequently, sleep is to introduce some           delay here
+		    catch(Exception exc) {}
+		    
+      //To update the counter
+		timer.setText(""+h + " : " + m + " : " + s);//Initially a string because this method takes string.
+		
+		}
+	        }
+				);
+	    timer_thread.start(); //start() starts the thread
+
+		
+
+        xTurn = true;
+        gameOver = false;
+
+        frame.setVisible(true);
+    }
+
+    public void actionPerformed(ActionEvent e) {
+        if (gameOver) {
+            return;
+        }
+
+        JButton button = (JButton)e.getSource();
+        if (button.getText().equals("")) {
+            if (xTurn) {
+                button.setText("X");
+                turnLabel = "O's turn";
+            } else {
+                button.setText("O");
+                turnLabel = "X's turn";
+            }
+            xTurn = !xTurn;
+
+            if (checkForWin()) {
+                String winner = xTurn ? "O" : "X";
+                JOptionPane.showMessageDialog(frame, winner + " wins!");
+                gameOver = true;
+            } else if (checkForDraw()) {
+                JOptionPane.showMessageDialog(frame, "It's a draw!");
+                gameOver = true;
+            }
+        }
+    }
+
+    private boolean checkForWin() {
+        String[] positions = new String[9];
+        for (int i = 0; i < buttons.length; i++) {
+            positions[i] = buttons[i].getText();
+        }
+
+        for (int i = 0; i < 9; i += 3) {
+            if (!positions[i].equals("") && positions[i].equals(positions[i+1]) && positions[i].equals(positions[i+2])) {
+                return true;
+            }
+        }
+
+        for (int i = 0; i < 3; i++) {
+            if (!positions[i].equals("") && positions[i].equals(positions[i+3]) && positions[i].equals(positions[i+6])) {
+                return true;
+            }
+        }
+
+        if (!positions[0].equals("") && positions[0].equals(positions[4]) && positions[0].equals(positions[8])) {
+            return true;
+        }
+
+        if (!positions[2].equals("") && positions[2].equals(positions[4]) && positions[2].equals(positions[6])) {
+            return true;
+        }
+
+        return false;
+    }
+
+    private boolean checkForDraw() {
+        for (int i = 0; i < buttons.length; i++) {
+            if (buttons[i].getText().equals("")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    public static void main(String[] args) {
+        new TicTacToe1();
+    }
+}
